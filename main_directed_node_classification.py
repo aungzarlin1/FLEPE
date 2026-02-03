@@ -18,11 +18,12 @@ parser.add_argument('--hidden_channels', type=int, default=16)
 parser.add_argument('--k', type=int, default=5)
 parser.add_argument('--model', type=str, default='gcn')
 parser.add_argument('--flow_method', type=str, default='pre')
-parser.add_argument('--vertex_import', type=bool, default=True)
+parser.add_argument('--vertex_import', type=str, default='True')
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--epochs', type=int, default=200)
 parser.add_argument('--seed',type=int, default=0)
 args = parser.parse_args()
+print(args)
 
 seed_everything(args.seed)
 
@@ -39,7 +40,7 @@ num_classes = (data.y.max() - data.y.min() + 1).cpu().numpy()
 
 
 if 'flepe' in args.model:
-    flepe = torch.load(f'PE_data/FLEPE/{args.dataset.lower()}_{str(args.vertex_import).lower()}_{args.flow_method}.pt')
+    flepe = torch.load(f'PE_data/FLEPE/{args.dataset.lower()}_{args.vertex_import.lower()}_{args.flow_method}.pt')
     flepe = flepe[:,:args.k]
     edge_dim = flepe.size(1)
 else:
@@ -126,5 +127,6 @@ for split in range(data.train_mask.shape[1]):
     acc.append(test_acc)
     print(f'Split: {split:02d}, Test_Acc: {test_acc:.4f}')
 
+np.savetxt(f"{args.dataset}/{args.model}/{args.flow_method}/{args.vertex_import}/{args.k}_seed_{args.seed}.txt", np.array(acc),fmt="%.6f")
 print(f'Avg ACC : {statistics.mean(acc)*100}, STD : {statistics.stdev(acc)*100}')
 
